@@ -25,7 +25,7 @@ public final class QueryUtils {
     private static final String LOG_TAG = QueryUtils.class.getSimpleName();
 
     public static List<Article> extractArticles(String url) {
-
+        Log.v(LOG_TAG,"Entering extractArticles method.");
         // Declare URL object; initially null;
         URL queryUrl = null;
         // Check that passed String is not null or empty
@@ -63,7 +63,7 @@ public final class QueryUtils {
     }
 
     private static String makeHttpRequest(URL queryUrl) {
-
+        Log.v(LOG_TAG,"Entering makeHttpRequest method.");
         // Ensure passed URL is valid.
         if (queryUrl == null) {
             return null;
@@ -119,6 +119,7 @@ public final class QueryUtils {
 
 
     private static String readFromStream(InputStream inputStream) throws IOException {
+        Log.v(LOG_TAG,"Entering readFromStream method.");
         // Check that InputStream is not null
         if (inputStream == null) {
             return null;
@@ -140,7 +141,7 @@ public final class QueryUtils {
         }
 
         // Convert StringBuilder's content and return a final String
-        return reader.toString();
+        return output.toString();
     }
 }
 

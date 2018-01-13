@@ -1,11 +1,15 @@
 package com.example.android.project_newsapp;
 
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import java.util.List;
 
-public class NewsFeedActivity extends AppCompatActivity {
+public class NewsFeedActivity extends AppCompatActivity
+        implements android.support.v4.app.LoaderManager.LoaderCallbacks<List<Article>>{
 
     /**
      * Tag for the log messages
@@ -15,6 +19,14 @@ public class NewsFeedActivity extends AppCompatActivity {
     // CONSTANT queury test string for The Guardian API
     private static final String TEST_QUERY = "https://content.guardianapis.com/us/technology?q=android&order-by=newest&api-key=a512d6e2-1af6-4390-8168-b682383ef0fd";
 
+    /**
+     * Reference to LoaderManager
+     */
+    private LoaderManager mLoaderManager;
+
+    /**
+     * Reference to a list of articles
+     */
     private List<Article> mArticles;
 
     @Override
@@ -22,9 +34,32 @@ public class NewsFeedActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_feed);
 
-        mArticles = QueryUtils.extractArticles(TEST_QUERY);
-
         // TODO: NEED TO MOVE THE QUERYUTILS CALLS TO A BACKGROUND THREAD VIA A LOADER...
+
+        mLoaderManager = getSupportLoaderManager();
+
+        fetchArticles();
+
+    }
+
+    private void fetchArticles() {
+        Log.v(LOG_TAG,"In fetchArticles method.");
+        mLoaderManager.initLoader(1, null, this);
+    }
+
+    @Override
+    public Loader<List<Article>> onCreateLoader(int id, Bundle args) {
+        Log.v(LOG_TAG,"In onCreateLoader method.");
+        return new ArticleLoader(this, TEST_QUERY);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Article>> loader, List<Article> articles) {
+        Log.v(LOG_TAG,"In onLoadFinished method; title of first article is: " + articles.get(0).getTitle());
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
 
     }
 }
