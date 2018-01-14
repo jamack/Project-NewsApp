@@ -2,6 +2,10 @@ package com.example.android.project_newsapp;
 
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +15,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,7 +30,7 @@ public final class QueryUtils {
     private static final String LOG_TAG = QueryUtils.class.getSimpleName();
 
     public static List<Article> extractArticles(String url) {
-        Log.v(LOG_TAG,"Entering extractArticles method.");
+        Log.v(LOG_TAG, "Entering extractArticles method.");
         // Declare URL object; initially null;
         URL queryUrl = null;
         // Check that passed String is not null or empty
@@ -44,9 +49,9 @@ public final class QueryUtils {
             responseString = makeHttpRequest(queryUrl);
         }
 
-        Log.v(LOG_TAG,"At end of extractArticles method; value of JSON string (to be parsed) is: " + responseString);
+        Log.v(LOG_TAG, "At end of extractArticles method; value of JSON string (to be parsed) is: " + responseString);
 
-        return null;
+        return parseSection(responseString);
     }
 
     private static URL formatURL(String url) {
@@ -63,7 +68,7 @@ public final class QueryUtils {
     }
 
     private static String makeHttpRequest(URL queryUrl) {
-        Log.v(LOG_TAG,"Entering makeHttpRequest method.");
+        Log.v(LOG_TAG, "Entering makeHttpRequest method.");
         // Ensure passed URL is valid.
         if (queryUrl == null) {
             return null;
@@ -119,7 +124,7 @@ public final class QueryUtils {
 
 
     private static String readFromStream(InputStream inputStream) throws IOException {
-        Log.v(LOG_TAG,"Entering readFromStream method.");
+        Log.v(LOG_TAG, "Entering readFromStream method.");
         // Check that InputStream is not null
         if (inputStream == null) {
             return null;
@@ -142,6 +147,61 @@ public final class QueryUtils {
 
         // Convert StringBuilder's content and return a final String
         return output.toString();
+    }
+
+    private static List<Article> parseSection(String jsonString) {
+        // Check that string is not null or empty - return early if it is
+        if (jsonString == null || jsonString.isEmpty()) {
+            return null;
+        }
+
+        // Create List<Article> to hold parsed articles
+        List<Article> articlesList = new ArrayList<>();
+
+        try {
+            Log.v(LOG_TAG,"Converting server response string to initial JSON object");
+            // Convert returned string of JSON results into a JSON object
+            JSONObject jsonQuery = new JSONObject(jsonString);
+
+            Log.v(LOG_TAG,"Creating JSONObject from 'response' tag");
+            // Get the "response" object
+            JSONObject response = jsonQuery.getJSONObject("response");
+
+            Log.v(LOG_TAG,"Creating JSONArray from the 'results' tag");
+            //  Get the "results" array
+            JSONArray results = response.getJSONArray("results");
+
+            // Check and store length of the array (number of articles)
+            int numArticles = results.length();
+            // If empty array, return early
+            if (numArticles == 0) {
+                return null;
+            }
+
+            // Loop through the array items
+            for (int i = 0; i < numArticles; i++) {
+                // Get item at the index
+                JSONObject article = results.getJSONObject(i);
+
+                // Get the title
+                String title = article.getString("webTitle");
+                // Get the section
+                String section = article.getString("sectionId");
+
+                // Get the publication date, if included
+                String pubDate = null;
+                if (article.has("webPublicationDate")) {
+                    pubDate = article.getString("webPublicationDate");
+                }
+
+                // Add article to the list, passing parsed data into Article constructor
+                articlesList.add(new Article(title, section, null, pubDate));
+            }
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "Error parsing the server JSON response.", e);
+        }
+
+        return articlesList;
     }
 }
 
