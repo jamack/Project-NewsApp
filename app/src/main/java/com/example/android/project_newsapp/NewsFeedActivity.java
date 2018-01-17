@@ -5,7 +5,10 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NewsFeedActivity extends AppCompatActivity
@@ -18,6 +21,16 @@ public class NewsFeedActivity extends AppCompatActivity
 
     // CONSTANT queury test string for The Guardian API
     private static final String TEST_QUERY = "https://content.guardianapis.com/us/technology?q=android&order-by=newest&api-key=a512d6e2-1af6-4390-8168-b682383ef0fd";
+
+    /**
+     * Reference to the {@link android.widget.ListView}
+     */
+    private ListView mListView;
+
+    /**
+     * Reference to {@link ArticleAdapter}
+     */
+    private ArrayAdapter<Article> mAdapter;
 
     /**
      * Reference to LoaderManager
@@ -34,7 +47,14 @@ public class NewsFeedActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_feed);
 
-        // TODO: NEED TO MOVE THE QUERYUTILS CALLS TO A BACKGROUND THREAD VIA A LOADER...
+        // Store reference to the ListView
+        mListView = findViewById(R.id.list_view);
+
+        // Store reference to an instance of the ArticleAdapter class
+        mAdapter = new ArticleAdapter(this, new ArrayList<Article>());
+
+        // Set adapter on the list view
+        mListView.setAdapter(mAdapter);
 
         mLoaderManager = getSupportLoaderManager();
 
@@ -56,6 +76,8 @@ public class NewsFeedActivity extends AppCompatActivity
     @Override
     public void onLoadFinished(Loader<List<Article>> loader, List<Article> articles) {
         Log.v(LOG_TAG,"In onLoadFinished method; title of first article is: " + articles.get(0).getTitle());
+
+        mAdapter.addAll(articles);
     }
 
     @Override
