@@ -5,8 +5,11 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +29,16 @@ public class NewsFeedActivity extends AppCompatActivity
      * Reference to the {@link android.widget.ListView}
      */
     private ListView mListView;
+
+    /**
+     * Reference to the {@link android.widget.ProgressBar}
+     */
+    private ProgressBar mProgressBar;
+
+    /**
+     * Reference to the empty view
+     */
+    private TextView mEmptyView;
 
     /**
      * Reference to {@link ArticleAdapter}
@@ -50,6 +63,15 @@ public class NewsFeedActivity extends AppCompatActivity
         // Store reference to the ListView
         mListView = findViewById(R.id.list_view);
 
+        // Store reference to the empty view
+        mEmptyView = findViewById(R.id.empty_view);
+
+        // Assign the ListView's empty view
+        mListView.setEmptyView(mEmptyView);
+
+        // Store reference to the ProgressBar
+        mProgressBar = findViewById(R.id.progress_bar);
+
         // Store reference to an instance of the ArticleAdapter class
         mAdapter = new ArticleAdapter(this, new ArrayList<Article>());
 
@@ -64,6 +86,9 @@ public class NewsFeedActivity extends AppCompatActivity
 
     private void fetchArticles() {
         Log.v(LOG_TAG,"In fetchArticles method.");
+        // Display the ProgressBar
+        mProgressBar.setVisibility(View.VISIBLE);
+
         mLoaderManager.initLoader(1, null, this);
     }
 
@@ -77,7 +102,22 @@ public class NewsFeedActivity extends AppCompatActivity
     public void onLoadFinished(Loader<List<Article>> loader, List<Article> articles) {
         Log.v(LOG_TAG,"In onLoadFinished method; title of first article is: " + articles.get(0).getTitle());
 
-        mAdapter.addAll(articles);
+        // Turn off the progress bar
+        mProgressBar.setVisibility(View.GONE);
+
+        // Check that returned list of articles is not null or empty
+        if (articles != null || articles.size() > 0) {
+            // Store list of articles in class field
+            mArticles = articles;
+
+            // Add list of articles to the adapter to display
+            mAdapter.addAll(mArticles);
+        } else {
+            // Set the empty view's text
+            mEmptyView.setText("No articles to display for current search.");
+            // Make the empty view visible
+            mEmptyView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
