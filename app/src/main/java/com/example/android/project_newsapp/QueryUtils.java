@@ -194,8 +194,11 @@ public final class QueryUtils {
                     pubDate = article.getString("webPublicationDate");
                 }
 
+                // Get the web URL
+                String webUrl = article.getString("webUrl");
+
                 // Add article to the list, passing parsed data into Article constructor
-                articlesList.add(new Article(title, section, null, pubDate));
+                articlesList.add(new Article(title, section, null, pubDate, webUrl));
             }
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Error parsing the server JSON response.", e);

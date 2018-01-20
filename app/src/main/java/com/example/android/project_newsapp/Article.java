@@ -32,18 +32,25 @@ public class Article {
     private String mPubDate;
 
     /**
+     * URL of article on the web
+     */
+    private String mWebUrl;
+
+    /**
      * Construct a new {@link Article}
      *
      * @param title of the article
      * @param section that the article is grouped under
      * @param author of the article, as many as are known
      * @param pubDate of the article, if known
+     * @param webUrl of the article on the web
      */
-    public Article(String title, String section, String author, String pubDate) {
+    public Article(String title, String section, String author, String pubDate, String webUrl) {
         this.mTitle = title;
         this.mSection = section;
         this.mAuthor = author;
         this.mPubDate = pubDate;
+        this.mWebUrl = webUrl;
     }
 
     public String getTitle() {
@@ -60,5 +67,9 @@ public class Article {
 
     public String getPubDate() {
         return mPubDate;
+    }
+
+    public String getWebUrl() {
+        return mWebUrl;
     }
 }
