@@ -102,6 +102,8 @@ public class NewsFeedActivity extends AppCompatActivity
         fetchArticles();
     }
 
+    // TODO: ADD/OVERRIDE ONRESUME() METHOD TO HANDLE CONFIGURATION CHANGES & RESTORE STATE
+
     private void fetchArticles() {
         Log.v(LOG_TAG,"In fetchArticles method.");
         // Display the ProgressBar
@@ -162,4 +164,7 @@ public class NewsFeedActivity extends AppCompatActivity
             startActivity(intent);
         }
     }
+
+    // TODO: ADD/OVERRIDE ONSTOP() METHOD AND RELEASE RESOURCES,
+    // TODO: INCLUDING SAVING STATE
 }

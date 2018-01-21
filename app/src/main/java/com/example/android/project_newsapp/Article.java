@@ -4,6 +4,7 @@ package com.example.android.project_newsapp;
  * Contains data for a news article
  */
 
+// TODO: MAKE CLASS PARCELABLE SO A LIST OF ARTICLES CAN BE SAVED AND RESTORED
 public class Article {
 
     /**

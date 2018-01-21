@@ -178,6 +178,7 @@ public final class QueryUtils {
                 return null;
             }
 
+            // TODO: SCRAPE ANY AUTHORS FROM TITLE. FORMAT THE DATE BETTER.
             // Loop through the array items
             for (int i = 0; i < numArticles; i++) {
                 // Get item at the index
@@ -185,20 +186,90 @@ public final class QueryUtils {
 
                 // Get the title
                 String title = article.getString("webTitle");
+
+                // Declare variable for author name; initially set to null
+                String author = null;
+
+                // Check whether author name is included in the title
+                if (title.indexOf("|") != -1) {
+                    // Split title into separate strings at the "|" delineator
+                    String[] titleAndAuthor = title.split("\\|");
+
+                    // Save first string as the title
+                    title = titleAndAuthor[0];
+                    // Save the second string as the author
+                    author = titleAndAuthor[1];
+                }
+
                 // Get the section
                 String section = article.getString("sectionId");
 
                 // Get the publication date, if included
                 String pubDate = null;
                 if (article.has("webPublicationDate")) {
-                    pubDate = article.getString("webPublicationDate");
+                    String pubDateRaw = article.getString("webPublicationDate");
+
+                    // Format the raw publication date
+                    // Create a new Stringbuilder object
+                    StringBuilder builder = new StringBuilder();
+
+                    // Extract the month portion of publication date
+                    String month = pubDateRaw.substring(5,7);
+                    Log.v(LOG_TAG,"In parseSection; parsed date value is: " + month);
+                    // Add abbreviated month
+                    switch (month) {
+                        case "01":
+                            builder.append("Jan ");
+                            break;
+                        case "02":
+                            builder.append("Feb ");
+                            break;
+                        case "03":
+                            builder.append("Mar ");
+                            break;
+                        case "04":
+                            builder.append("Apr ");
+                            break;
+                        case "05":
+                            builder.append("May ");
+                            break;
+                        case "06":
+                            builder.append("Jun ");
+                            break;
+                        case "07":
+                            builder.append("Jul ");
+                            break;
+                        case "08":
+                            builder.append("Aug ");
+                            break;
+                        case "09":
+                            builder.append("Sep ");
+                            break;
+                        case "10":
+                            builder.append("Oct ");
+                            break;
+                        case "11":
+                            builder.append("Nov ");
+                            break;
+                        case "12":
+                            builder.append("Dec ");
+                            break;
+                    }
+
+                    // Add the date
+                    builder.append(pubDateRaw.substring(8,10) + ", ");
+                    // Add the year
+                    builder.append(pubDateRaw.substring(0,4));
+
+                    // Convert to string
+                    pubDate = builder.toString();
                 }
 
                 // Get the web URL
                 String webUrl = article.getString("webUrl");
 
                 // Add article to the list, passing parsed data into Article constructor
-                articlesList.add(new Article(title, section, null, pubDate, webUrl));
+                articlesList.add(new Article(title, section, author, pubDate, webUrl));
             }
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Error parsing the server JSON response.", e);
@@ -207,4 +278,3 @@ public final class QueryUtils {
         return articlesList;
     }
 }
-
