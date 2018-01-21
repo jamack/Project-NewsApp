@@ -1,11 +1,14 @@
 package com.example.android.project_newsapp;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -29,6 +32,11 @@ public class NewsFeedActivity extends AppCompatActivity
      * Reference to the {@link android.widget.ListView}
      */
     private ListView mListView;
+
+    /**
+     * Reference to the {@link android.widget.AdapterView.OnItemClickListener}
+     */
+    private AdapterView.OnItemClickListener mOnItemClickListener;
 
     /**
      * Reference to the {@link android.widget.ProgressBar}
@@ -78,10 +86,20 @@ public class NewsFeedActivity extends AppCompatActivity
         // Set adapter on the list view
         mListView.setAdapter(mAdapter);
 
+        mOnItemClickListener = new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Log.v(LOG_TAG,"In the onItemClick method.");
+                // Call method to display full article for list item in user's web brower
+                openWebView(position);
+            }
+        };
+
+        // Store reference to a LoaderManager instance
         mLoaderManager = getSupportLoaderManager();
 
+        // Call method to handle server query on background thread
         fetchArticles();
-
     }
 
     private void fetchArticles() {
@@ -89,6 +107,8 @@ public class NewsFeedActivity extends AppCompatActivity
         // Display the ProgressBar
         mProgressBar.setVisibility(View.VISIBLE);
 
+        // Call for a Loader to get articles from a server.
+        // Check whether instance already exists. If so, use that. If not, initialize an instance.
         mLoaderManager.initLoader(1, null, this);
     }
 
@@ -112,6 +132,9 @@ public class NewsFeedActivity extends AppCompatActivity
 
             // Add list of articles to the adapter to display
             mAdapter.addAll(mArticles);
+
+            // Set the OnItemClickListener on the ListView. (Now that it is filled with servery query results).
+            mListView.setOnItemClickListener(mOnItemClickListener);
         } else {
             // Set the empty view's text
             mEmptyView.setText("No articles to display for current search.");
@@ -123,5 +146,20 @@ public class NewsFeedActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader loader) {
 
+    }
+
+    private void openWebView(int position) {
+        Log.v(LOG_TAG,"In the openWebView method.");
+        // Retrieve the item's web url
+        String itemWebUrl = mArticles.get(position).getWebUrl();
+
+        // Declare and initialize a new intent, using the web url
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(itemWebUrl));
+
+        // Verify that user has an installed app to handle the intent.
+        // If so, start the web browser intent.
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 }
