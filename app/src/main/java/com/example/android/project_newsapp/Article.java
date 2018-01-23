@@ -1,11 +1,14 @@
 package com.example.android.project_newsapp;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Contains data for a news article
  */
 
 // TODO: MAKE CLASS PARCELABLE SO A LIST OF ARTICLES CAN BE SAVED AND RESTORED
-public class Article {
+public class Article implements Parcelable{
 
     /**
      * Tag for the log messages
@@ -54,6 +57,26 @@ public class Article {
         this.mWebUrl = webUrl;
     }
 
+    protected Article(Parcel in) {
+        mTitle = in.readString();
+        mSection = in.readString();
+        mAuthor = in.readString();
+        mPubDate = in.readString();
+        mWebUrl = in.readString();
+    }
+
+    public static final Creator<Article> CREATOR = new Creator<Article>() {
+        @Override
+        public Article createFromParcel(Parcel in) {
+            return new Article(in);
+        }
+
+        @Override
+        public Article[] newArray(int size) {
+            return new Article[size];
+        }
+    };
+
     public String getTitle() {
         return mTitle;
     }
@@ -73,4 +96,26 @@ public class Article {
     public String getWebUrl() {
         return mWebUrl;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    /**
+     * Write {@link Article}' data to a Parcelable that can be saved as part of an Activity's state
+     *
+     * @param parcel to be saved into
+     * @param flags with any additional info about how object should be written
+     */
+    @Override
+    public void writeToParcel(Parcel parcel, int flags) {
+        parcel.writeString(mTitle);
+        parcel.writeString(mSection);
+        parcel.writeString(mAuthor);
+        parcel.writeString(mPubDate);
+        parcel.writeString(mWebUrl);
+    }
+
+
 }

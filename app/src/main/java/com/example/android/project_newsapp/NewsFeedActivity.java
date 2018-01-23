@@ -25,8 +25,18 @@ public class NewsFeedActivity extends AppCompatActivity
      */
     private static final String LOG_TAG = NewsFeedActivity.class.getSimpleName();
 
-    // CONSTANT queury test string for The Guardian API
+    // CONSTANT query test string for The Guardian API
     private static final String TEST_QUERY = "https://content.guardianapis.com/us/technology?q=android&order-by=newest&api-key=a512d6e2-1af6-4390-8168-b682383ef0fd";
+
+    /**
+     * Key for saving list view state
+     */
+    private static final String LIST_VIEW_STATE = "LIST_VIEW_STATE";
+
+    /**
+     * Key for saving {@link List<Article}
+     */
+    private static final String ARTICLES_LIST_STATE = "ARTICLES_LIST_STATE";
 
     /**
      * Reference to the {@link android.widget.ListView}
@@ -71,6 +81,12 @@ public class NewsFeedActivity extends AppCompatActivity
         // Store reference to the ListView
         mListView = findViewById(R.id.list_view);
 
+        // Check for prior state
+        if(savedInstanceState != null) {
+            // Restore prior state of list view
+            mListView.onRestoreInstanceState(savedInstanceState.getParcelable(LIST_VIEW_STATE));
+        }
+
         // Store reference to the empty view
         mEmptyView = findViewById(R.id.empty_view);
 
@@ -80,12 +96,26 @@ public class NewsFeedActivity extends AppCompatActivity
         // Store reference to the ProgressBar
         mProgressBar = findViewById(R.id.progress_bar);
 
-        // Store reference to an instance of the ArticleAdapter class
-        mAdapter = new ArticleAdapter(this, new ArrayList<Article>());
+        // Check for prior state and whether it contains key for list of articles
+        if(savedInstanceState != null && savedInstanceState.containsKey(ARTICLES_LIST_STATE)) {
+            // Restore the saved list of articles
+            mArticles = savedInstanceState.getParcelableArrayList(ARTICLES_LIST_STATE);
+
+            // Store reference to a new instance of the ArticleAdapter class,
+            // using the restored list of articles
+            mAdapter = new ArticleAdapter(this, mArticles);
+            Log.v(LOG_TAG,"In onCreate method; creating new ArticleAdapter using saved state list of articles");
+        } else {
+            // Store reference to a new instance of the ArticleAdapter class,
+            // using a new empty ArrayList
+            mAdapter = new ArticleAdapter(this, new ArrayList<Article>());
+            Log.v(LOG_TAG,"In onCreate method; creating new ArticleAdapter using new empty list of articles");
+        }
 
         // Set adapter on the list view
         mListView.setAdapter(mAdapter);
 
+        // TODO: DO I NEED TO SAVE/RESTORE THE ONITEMCLICKLISTENER??
         mOnItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -98,11 +128,16 @@ public class NewsFeedActivity extends AppCompatActivity
         // Store reference to a LoaderManager instance
         mLoaderManager = getSupportLoaderManager();
 
-        // Call method to handle server query on background thread
-        fetchArticles();
+        // Check for prior state
+        if(savedInstanceState == null) {
+            Log.v(LOG_TAG,"In onCreate method; no saved state available, so calling fetchArticles method.");
+            // Call method to handle server query on background thread
+            fetchArticles();
+        }
     }
 
-    // TODO: ADD/OVERRIDE ONRESUME() METHOD TO HANDLE CONFIGURATION CHANGES & RESTORE STATE
+    // TODO: ADD/OVERRIDE ONRESUME() METHOD TO START/RESTORE RESOURCES
+
 
     private void fetchArticles() {
         Log.v(LOG_TAG,"In fetchArticles method.");
@@ -166,5 +201,15 @@ public class NewsFeedActivity extends AppCompatActivity
     }
 
     // TODO: ADD/OVERRIDE ONSTOP() METHOD AND RELEASE RESOURCES,
-    // TODO: INCLUDING SAVING STATE
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // Save the list of articles
+        outState.putParcelableArrayList(ARTICLES_LIST_STATE, (ArrayList<Article>) mArticles);
+
+        // Save state for the list view
+        outState.putParcelable(LIST_VIEW_STATE, mListView.onSaveInstanceState());
+    }
 }

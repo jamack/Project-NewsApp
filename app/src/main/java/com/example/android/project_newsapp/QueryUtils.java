@@ -178,7 +178,6 @@ public final class QueryUtils {
                 return null;
             }
 
-            // TODO: SCRAPE ANY AUTHORS FROM TITLE. FORMAT THE DATE BETTER.
             // Loop through the array items
             for (int i = 0; i < numArticles; i++) {
                 // Get item at the index
