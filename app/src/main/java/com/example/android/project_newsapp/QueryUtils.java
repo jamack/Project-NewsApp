@@ -30,7 +30,6 @@ public final class QueryUtils {
     private static final String LOG_TAG = QueryUtils.class.getSimpleName();
 
     public static List<Article> extractArticles(String url) {
-        Log.v(LOG_TAG, "Entering extractArticles method.");
         // Declare URL object; initially null;
         URL queryUrl = null;
         // Check that passed String is not null or empty
@@ -49,8 +48,6 @@ public final class QueryUtils {
             responseString = makeHttpRequest(queryUrl);
         }
 
-        Log.v(LOG_TAG, "At end of extractArticles method; value of JSON string (to be parsed) is: " + responseString);
-
         return parseSection(responseString);
     }
 
@@ -68,7 +65,6 @@ public final class QueryUtils {
     }
 
     private static String makeHttpRequest(URL queryUrl) {
-        Log.v(LOG_TAG, "Entering makeHttpRequest method.");
         // Ensure passed URL is valid.
         if (queryUrl == null) {
             return null;
@@ -124,7 +120,6 @@ public final class QueryUtils {
 
 
     private static String readFromStream(InputStream inputStream) throws IOException {
-        Log.v(LOG_TAG, "Entering readFromStream method.");
         // Check that InputStream is not null
         if (inputStream == null) {
             return null;
@@ -159,15 +154,12 @@ public final class QueryUtils {
         List<Article> articlesList = new ArrayList<>();
 
         try {
-            Log.v(LOG_TAG,"Converting server response string to initial JSON object");
             // Convert returned string of JSON results into a JSON object
             JSONObject jsonQuery = new JSONObject(jsonString);
 
-            Log.v(LOG_TAG,"Creating JSONObject from 'response' tag");
             // Get the "response" object
             JSONObject response = jsonQuery.getJSONObject("response");
 
-            Log.v(LOG_TAG,"Creating JSONArray from the 'results' tag");
             //  Get the "results" array
             JSONArray results = response.getJSONArray("results");
 
@@ -214,8 +206,8 @@ public final class QueryUtils {
 
                     // Extract the month portion of publication date
                     String month = pubDateRaw.substring(5,7);
-                    Log.v(LOG_TAG,"In parseSection; parsed date value is: " + month);
                     // Add abbreviated month
+                    // TODO: EXTRACT THESE STRINGS
                     switch (month) {
                         case "01":
                             builder.append("Jan ");

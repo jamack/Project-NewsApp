@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="16dp"
+    android:padding="@dimen/margin_padding_normal"
+    android:paddingTop="@dimen/margin_padding_half"
+    android:background="#212121"
     tools:context="com.example.android.project_newsapp.NewsFeedActivity">
 
     <ListView

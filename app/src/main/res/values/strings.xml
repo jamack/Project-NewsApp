@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Paperboy</string>
+
+    <!-- ERROR/NOTIFICATION MESSAGES -->
+    <string name="error_message_no_connectivity">No network connection.\n\nPlease check connection and try again.</string>
+    <string name="error_message_no_articles_found">Hmm, that's odd. We didn't find any articles at the moment!</string>
 </resources>

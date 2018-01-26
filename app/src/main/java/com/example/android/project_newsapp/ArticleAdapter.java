@@ -3,7 +3,6 @@ package com.example.android.project_newsapp;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +29,6 @@ public class ArticleAdapter extends ArrayAdapter{
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        Log.v(LOG_TAG,"Entering getView method.");
         // Get the Article from the index matching the position in the ListView
         Article currentArticle = (Article) getItem(position);
 
@@ -39,15 +37,12 @@ public class ArticleAdapter extends ArrayAdapter{
 
         // Check whether View is being reused or needs to be inflated for the first time
         if (convertView == null) {
-            Log.v(LOG_TAG,"In the getView method; inflating a new View.");
             // Inflate a new list_item View
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
 
-            Log.v(LOG_TAG,"In the getView method; creating a new ViewHolder object.");
             // Create new ViewHolder object
             viewHolder = new ViewHolder();
 
-            Log.v(LOG_TAG,"In the getView method; fetching TextViews and caching in ViewHolder.");
             // Store references to view TextViews
             viewHolder.titleTextView = (TextView) convertView.findViewById(R.id.list_item_title);
             viewHolder.pubDateTextView = (TextView) convertView.findViewById(R.id.list_item_date_published);
@@ -57,7 +52,6 @@ public class ArticleAdapter extends ArrayAdapter{
             // Cache TextView references with View via the ViewHolder
             convertView.setTag(viewHolder);
         } else {
-            Log.v(LOG_TAG,"In the getView method; retrieving ViewHolder object from existing View.");
             viewHolder  = (ViewHolder) convertView.getTag();
         }
 

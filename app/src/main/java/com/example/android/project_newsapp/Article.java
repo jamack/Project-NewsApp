@@ -7,7 +7,6 @@ import android.os.Parcelable;
  * Contains data for a news article
  */
 
-// TODO: MAKE CLASS PARCELABLE SO A LIST OF ARTICLES CAN BE SAVED AND RESTORED
 public class Article implements Parcelable{
 
     /**

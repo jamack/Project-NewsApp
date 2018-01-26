@@ -1,6 +1,9 @@
 package com.example.android.project_newsapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -26,7 +29,7 @@ public class NewsFeedActivity extends AppCompatActivity
     private static final String LOG_TAG = NewsFeedActivity.class.getSimpleName();
 
     // CONSTANT query test string for The Guardian API
-    private static final String TEST_QUERY = "https://content.guardianapis.com/us/technology?q=android&order-by=newest&api-key=a512d6e2-1af6-4390-8168-b682383ef0fd";
+    private static final String INITIAL_QUERY = "https://content.guardianapis.com/us/technology?q=android&order-by=newest&api-key=a512d6e2-1af6-4390-8168-b682383ef0fd";
 
     /**
      * Key for saving list view state
@@ -62,6 +65,11 @@ public class NewsFeedActivity extends AppCompatActivity
      * Reference to {@link ArticleAdapter}
      */
     private ArrayAdapter<Article> mAdapter;
+
+    /**
+     * Reference to {@link android.net.ConnectivityManager}
+     */
+    private ConnectivityManager mConnectivityManager;
 
     /**
      * Reference to LoaderManager
@@ -104,43 +112,76 @@ public class NewsFeedActivity extends AppCompatActivity
             // Store reference to a new instance of the ArticleAdapter class,
             // using the restored list of articles
             mAdapter = new ArticleAdapter(this, mArticles);
-            Log.v(LOG_TAG,"In onCreate method; creating new ArticleAdapter using saved state list of articles");
         } else {
             // Store reference to a new instance of the ArticleAdapter class,
             // using a new empty ArrayList
             mAdapter = new ArticleAdapter(this, new ArrayList<Article>());
-            Log.v(LOG_TAG,"In onCreate method; creating new ArticleAdapter using new empty list of articles");
         }
 
         // Set adapter on the list view
         mListView.setAdapter(mAdapter);
-
-        // TODO: DO I NEED TO SAVE/RESTORE THE ONITEMCLICKLISTENER??
-        mOnItemClickListener = new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Log.v(LOG_TAG,"In the onItemClick method.");
-                // Call method to display full article for list item in user's web brower
-                openWebView(position);
-            }
-        };
 
         // Store reference to a LoaderManager instance
         mLoaderManager = getSupportLoaderManager();
 
         // Check for prior state
         if(savedInstanceState == null) {
-            Log.v(LOG_TAG,"In onCreate method; no saved state available, so calling fetchArticles method.");
             // Call method to handle server query on background thread
             fetchArticles();
         }
     }
 
-    // TODO: ADD/OVERRIDE ONRESUME() METHOD TO START/RESTORE RESOURCES
+    @Override
+    protected void onResume() {
+        super.onResume();
 
+        // Check whether onclick listener for list view already exists.
+        // If not, create one. (It will be attached in onLoadFinished method, when data for list view is loaded).
+        if (mOnItemClickListener == null) {
+            mOnItemClickListener = new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                    // Call method to display full article for list item in user's web brower
+                    openWebView(position);
+                }
+            };
 
+            // Set the OnItemClickListener on the ListView. (Now that it is filled with servery query results).
+            mListView.setOnItemClickListener(mOnItemClickListener);
+        }
+    }
+
+    /**
+     * Perform a server query to return a list of articles.
+     * Check for Connectivity; handle error states and progress bar.
+     * Create a new {@link ArticleLoader} to perform server operations on a background thread.
+     */
     private void fetchArticles() {
-        Log.v(LOG_TAG,"In fetchArticles method.");
+        // Get reference to a ConnectivityManager instance
+        if (mConnectivityManager == null) {
+            mConnectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        }
+
+        // Check whether there is network connectivity
+        NetworkInfo activeNetwork = mConnectivityManager.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        // If no network connection
+        if (!isConnected) {
+            // Clear out previous data
+            mAdapter.clear();
+
+            // Turn on empty view text
+            mEmptyView.setVisibility(View.VISIBLE);
+
+            // Set empty view text to show error message regarding network connectivity
+            mEmptyView.setText(R.string.error_message_no_connectivity);
+            return;
+        } else {
+            mEmptyView.setVisibility(View.GONE);
+        }
+
         // Display the ProgressBar
         mProgressBar.setVisibility(View.VISIBLE);
 
@@ -152,7 +193,7 @@ public class NewsFeedActivity extends AppCompatActivity
     @Override
     public Loader<List<Article>> onCreateLoader(int id, Bundle args) {
         Log.v(LOG_TAG,"In onCreateLoader method.");
-        return new ArticleLoader(this, TEST_QUERY);
+        return new ArticleLoader(this, INITIAL_QUERY);
     }
 
     @Override
@@ -164,17 +205,16 @@ public class NewsFeedActivity extends AppCompatActivity
 
         // Check that returned list of articles is not null or empty
         if (articles != null || articles.size() > 0) {
+            Log.v(LOG_TAG, "In onLoadFinished method; storing returned list of Articles in global field.");
             // Store list of articles in class field
             mArticles = articles;
 
             // Add list of articles to the adapter to display
             mAdapter.addAll(mArticles);
 
-            // Set the OnItemClickListener on the ListView. (Now that it is filled with servery query results).
-            mListView.setOnItemClickListener(mOnItemClickListener);
         } else {
             // Set the empty view's text
-            mEmptyView.setText("No articles to display for current search.");
+            mEmptyView.setText(R.string.error_message_no_articles_found);
             // Make the empty view visible
             mEmptyView.setVisibility(View.VISIBLE);
         }
@@ -182,11 +222,16 @@ public class NewsFeedActivity extends AppCompatActivity
 
     @Override
     public void onLoaderReset(Loader loader) {
-
+        // Clear the data
+        mAdapter.clear();
     }
 
+    /**
+     * Opens user's web browser app (if present) to display a full article
+     *
+     * @param position in the list view, determining which article to display
+     */
     private void openWebView(int position) {
-        Log.v(LOG_TAG,"In the openWebView method.");
         // Retrieve the item's web url
         String itemWebUrl = mArticles.get(position).getWebUrl();
 
@@ -200,16 +245,33 @@ public class NewsFeedActivity extends AppCompatActivity
         }
     }
 
-    // TODO: ADD/OVERRIDE ONSTOP() METHOD AND RELEASE RESOURCES,
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        // Save the list of articles
-        outState.putParcelableArrayList(ARTICLES_LIST_STATE, (ArrayList<Article>) mArticles);
+        // Check whether there is any data (i.e. list of articles, which would also mean list view state is present).
+        // (If list of articles is null, then we don't need to worry about saving it or list view state).
+        if (mArticles != null) {
+            // Save the list of articles
+            outState.putParcelableArrayList(ARTICLES_LIST_STATE, (ArrayList<Article>) mArticles);
 
-        // Save state for the list view
-        outState.putParcelable(LIST_VIEW_STATE, mListView.onSaveInstanceState());
+            // Save state for the list view
+            outState.putParcelable(LIST_VIEW_STATE, mListView.onSaveInstanceState());
+        }
+    }
+
+    /**
+     * Called when activity is completely hidden from the user.
+     * Release resources that might cause memory leaks.
+     */
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // Release the list view's onclick listener
+        mOnItemClickListener = null;
+
+        // Release the ConnectivityManager
+        mConnectivityManager = null;
     }
 }

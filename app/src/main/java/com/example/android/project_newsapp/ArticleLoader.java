@@ -1,7 +1,6 @@
 package com.example.android.project_newsapp;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.util.List;
 
@@ -34,7 +33,6 @@ public class ArticleLoader extends android.support.v4.content.AsyncTaskLoader<Li
 
     @Override
     public List<Article> loadInBackground() {
-        Log.v(LOG_TAG,"In loadInBackground method.");
         return QueryUtils.extractArticles(mQueryUrl);
     }
 }
