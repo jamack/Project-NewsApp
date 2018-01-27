@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.util.List;
 
 /**
- * Created by James on 1/14/2018.
+ * Adapter to populate ListView with series of {@link Article} objects.
  */
 
 public class ArticleAdapter extends ArrayAdapter{
@@ -44,10 +44,10 @@ public class ArticleAdapter extends ArrayAdapter{
             viewHolder = new ViewHolder();
 
             // Store references to view TextViews
-            viewHolder.titleTextView = (TextView) convertView.findViewById(R.id.list_item_title);
-            viewHolder.pubDateTextView = (TextView) convertView.findViewById(R.id.list_item_date_published);
-            viewHolder.sectionTextView = (TextView) convertView.findViewById(R.id.list_item_section);
-            viewHolder.authorsTextView = (TextView) convertView.findViewById(R.id.list_item_author);
+            viewHolder.titleTextView = convertView.findViewById(R.id.list_item_title);
+            viewHolder.pubDateTextView = convertView.findViewById(R.id.list_item_date_published);
+            viewHolder.sectionTextView = convertView.findViewById(R.id.list_item_section);
+            viewHolder.authorsTextView = convertView.findViewById(R.id.list_item_author);
 
             // Cache TextView references with View via the ViewHolder
             convertView.setTag(viewHolder);

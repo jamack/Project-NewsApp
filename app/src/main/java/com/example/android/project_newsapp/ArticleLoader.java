@@ -5,7 +5,8 @@ import android.content.Context;
 import java.util.List;
 
 /**
- * Created by James on 1/10/2018.
+ * Loader class - handles creating a list - on a background thread - of {@link Article} objects
+ * that are fetched from a server, parsed, and added to a list.
  */
 
 public class ArticleLoader extends android.support.v4.content.AsyncTaskLoader<List<Article>> {
@@ -33,6 +34,6 @@ public class ArticleLoader extends android.support.v4.content.AsyncTaskLoader<Li
 
     @Override
     public List<Article> loadInBackground() {
-        return QueryUtils.extractArticles(mQueryUrl);
+        return QueryUtils.extractArticles(getContext(), mQueryUrl);
     }
 }

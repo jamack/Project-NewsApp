@@ -1,5 +1,6 @@
 package com.example.android.project_newsapp;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by James on 1/9/2018.
+ * Helper methods related to requesting and receiving book data from The Guardian news API.
  */
 
 public final class QueryUtils {
@@ -29,7 +30,7 @@ public final class QueryUtils {
      */
     private static final String LOG_TAG = QueryUtils.class.getSimpleName();
 
-    public static List<Article> extractArticles(String url) {
+    public static List<Article> extractArticles(Context context, String url) {
         // Declare URL object; initially null;
         URL queryUrl = null;
         // Check that passed String is not null or empty
@@ -48,7 +49,7 @@ public final class QueryUtils {
             responseString = makeHttpRequest(queryUrl);
         }
 
-        return parseSection(responseString);
+        return parseSection(context, responseString);
     }
 
     private static URL formatURL(String url) {
@@ -144,7 +145,7 @@ public final class QueryUtils {
         return output.toString();
     }
 
-    private static List<Article> parseSection(String jsonString) {
+    private static List<Article> parseSection(Context context, String jsonString) {
         // Check that string is not null or empty - return early if it is
         if (jsonString == null || jsonString.isEmpty()) {
             return null;
@@ -182,18 +183,18 @@ public final class QueryUtils {
                 String author = null;
 
                 // Check whether author name is included in the title
-                if (title.indexOf("|") != -1) {
+                if (title.contains("|")) {
                     // Split title into separate strings at the "|" delineator
-                    String[] titleAndAuthor = title.split("\\|");
+                    String[] titleAndAuthor = title.split("\\u0020\\|\\u0020");
 
                     // Save first string as the title
                     title = titleAndAuthor[0];
                     // Save the second string as the author
-                    author = titleAndAuthor[1];
+                    author = context.getString(R.string.multiple_space_characters) + context.getString(R.string.pipe_character) + context.getString(R.string.multiple_space_characters) + titleAndAuthor[1];
                 }
 
                 // Get the section
-                String section = article.getString("sectionId");
+                String section = context.getString(R.string.multiple_space_characters) + context.getString(R.string.pipe_character) + context.getString(R.string.multiple_space_characters) + article.getString("sectionId");
 
                 // Get the publication date, if included
                 String pubDate = null;
@@ -207,50 +208,50 @@ public final class QueryUtils {
                     // Extract the month portion of publication date
                     String month = pubDateRaw.substring(5,7);
                     // Add abbreviated month
-                    // TODO: EXTRACT THESE STRINGS
                     switch (month) {
                         case "01":
-                            builder.append("Jan ");
+                            builder.append(context.getResources().getString(R.string.month_01));
                             break;
                         case "02":
-                            builder.append("Feb ");
+                            builder.append(context.getResources().getString(R.string.month_02));
                             break;
                         case "03":
-                            builder.append("Mar ");
+                            builder.append(context.getResources().getString(R.string.month_03));
                             break;
                         case "04":
-                            builder.append("Apr ");
+                            builder.append(context.getResources().getString(R.string.month_04));
                             break;
                         case "05":
-                            builder.append("May ");
+                            builder.append(context.getResources().getString(R.string.month_05));
                             break;
                         case "06":
-                            builder.append("Jun ");
+                            builder.append(context.getResources().getString(R.string.month_06));
                             break;
                         case "07":
-                            builder.append("Jul ");
+                            builder.append(context.getResources().getString(R.string.month_07));
                             break;
                         case "08":
-                            builder.append("Aug ");
+                            builder.append(context.getResources().getString(R.string.month_08));
                             break;
                         case "09":
-                            builder.append("Sep ");
+                            builder.append(context.getResources().getString(R.string.month_09));
                             break;
                         case "10":
-                            builder.append("Oct ");
+                            builder.append(context.getResources().getString(R.string.month_10));
                             break;
                         case "11":
-                            builder.append("Nov ");
+                            builder.append(context.getResources().getString(R.string.month_11));
                             break;
                         case "12":
-                            builder.append("Dec ");
+                            builder.append(context.getResources().getString(R.string.month_12));
                             break;
                     }
 
                     // Add the date
-                    builder.append(pubDateRaw.substring(8,10) + ", ");
+                    builder.append(pubDateRaw.substring(8,10)).append(context.getResources().getString(R.string.date_comma_separator));
                     // Add the year
-                    builder.append(pubDateRaw.substring(0,4));
+                    builder.append(pubDateRaw.substring(0,4))
+                    ;
 
                     // Convert to string
                     pubDate = builder.toString();

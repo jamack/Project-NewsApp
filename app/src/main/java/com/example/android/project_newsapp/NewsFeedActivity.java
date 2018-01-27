@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -192,20 +191,17 @@ public class NewsFeedActivity extends AppCompatActivity
 
     @Override
     public Loader<List<Article>> onCreateLoader(int id, Bundle args) {
-        Log.v(LOG_TAG,"In onCreateLoader method.");
         return new ArticleLoader(this, INITIAL_QUERY);
     }
 
     @Override
     public void onLoadFinished(Loader<List<Article>> loader, List<Article> articles) {
-        Log.v(LOG_TAG,"In onLoadFinished method; title of first article is: " + articles.get(0).getTitle());
 
         // Turn off the progress bar
         mProgressBar.setVisibility(View.GONE);
 
         // Check that returned list of articles is not null or empty
         if (articles != null || articles.size() > 0) {
-            Log.v(LOG_TAG, "In onLoadFinished method; storing returned list of Articles in global field.");
             // Store list of articles in class field
             mArticles = articles;
 

@@ -3,5 +3,25 @@
 
     <!-- ERROR/NOTIFICATION MESSAGES -->
     <string name="error_message_no_connectivity">No network connection.\n\nPlease check connection and try again.</string>
-    <string name="error_message_no_articles_found">Hmm, that's odd. We didn't find any articles at the moment!</string>
+    <string name="error_message_no_articles_found">Hmm, that\'s odd. We didn\'t find any articles at the moment!</string>
+
+    <!-- MONTH NAMES, FOR DISPLAYING PUBLICATION DATE -->
+    <!-- Each month's text is followed by unicode 'space' character -->
+    <string name="month_01">Jan\u0020</string>
+    <string name="month_02">Feb\u0020</string>
+    <string name="month_03">Mar\u0020</string>
+    <string name="month_04">Apr\u0020</string>
+    <string name="month_05">May\u0020</string>
+    <string name="month_06">Jun\u0020</string>
+    <string name="month_07">Jul\u0020</string>
+    <string name="month_08">Aug\u0020</string>
+    <string name="month_09">Sep\u0020</string>
+    <string name="month_10">Oct\u0020</string>
+    <string name="month_11">Nov\u0020</string>
+    <string name="month_12">Dec\u0020</string>
+
+    <!-- MISCELLANEOUS TEXT FOR DISPLAYING PUBLICATION DATE -->
+    <string name="date_comma_separator">,\u0020</string>
+    <string name="multiple_space_characters">\u0020\u0020</string>
+    <string name="pipe_character">|</string>
 </resources>
